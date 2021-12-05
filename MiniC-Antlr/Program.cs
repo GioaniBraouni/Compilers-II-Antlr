@@ -23,8 +23,8 @@ namespace MiniC_Antlr
 
             Console.WriteLine(tree.ToStringTree());
 
-            //STPrinterVisitor stPrinter = new STPrinterVisitor(); 
-            //stPrinter.Visit(tree);   
+            STPrinterVisitor stPrinter = new STPrinterVisitor(); 
+            stPrinter.Visit(tree);   
         }
     }
 }

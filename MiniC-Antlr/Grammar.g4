@@ -14,14 +14,14 @@ statement : expression QM		#ST_Expression
 		  | BREAK QM			 #ST_Break
 		  ;
 
-selectionStatement : ifStatement     #ST_If
-				   | switchStatement #ST_Switch
+selectionStatement : ifStatement     
+				   | switchStatement 
 				   ;
 
-ifStatement : IF LP expression RP statement (ELSEIF statementList)* (ELSE statementList)?  
+ifStatement : IF LP expression RP compoundStatement (ELSEIF compoundStatement)* (ELSE compoundStatement)?  #ST_If
 			;
 
-switchStatement: SWITCH LP expression RP LB caseOptions+ defaultOption? RB						 
+switchStatement: SWITCH LP expression RP LB caseOptions+ defaultOption? RB		#ST_Switch				 
 			   ;
 
 caseOptions : CASE expression COLON statementList 			#ST_CaseOptions	
@@ -31,17 +31,17 @@ defaultOption : DEFAULT COLON statementList					#ST_DefaultOptions
 				 ;
 
 	
-iteretionStatement : whileStatement		#ST_While
-				   | doWhileStatement	#ST_DoWhile
-				   | forStatement   	#ST_For	
+iteretionStatement : whileStatement		
+				   | doWhileStatement	
+				   | forStatement   		
 				   ;
 
-whileStatement : WHILE LP expression RP compoundStatement	
+whileStatement : WHILE LP expression RP compoundStatement	    #ST_While
 			   ;
 
-doWhileStatement : DO compoundStatement WHILE LP expression RP
+doWhileStatement : DO compoundStatement WHILE LP expression RP  #ST_DoWhile
 				 ;
-forStatement : LP expression? QM expression? QM expression RP statement
+forStatement : LP expression? QM expression? QM expression RP statement  #ST_For	
 			   ;
 
 compoundStatement : LB statementList? RB
@@ -55,7 +55,9 @@ expression : NUMBER											#ExprNUMBER
 		   | expression op=(DIV|MULT) expression 			#ExprDIVMULT   
 		   | expression op=(PLUS|MINUS) expression		    #ExprPLUSMINUS
 		   | PLUS PLUS expression							#ExprPLUSPLUS
-		   | MINUS PLUS expression							#ExprMINUSPLUS
+		   | expression PLUS PLUS							#PLUSPLUSExpr
+		   | MINUS MINUS expression							#MINUSMINUSExpr
+		   | expression MINUS MINUS							#ExprMINUSMINUS
 		   | LP expression RP								#ExprPARENTHESIS
 		   | IDENTIFIER ASSIGN expression					#ExprASSIGN
 		   | NOT expression									#ExprNOT
@@ -69,10 +71,10 @@ expression : NUMBER											#ExprNUMBER
 		   | expression NEQUAL expression					#ExprNEQUAL
 		   ;
 
-args : (expression (COMMA)?)+
+args : (expression (COMMA)?)+ #ST_Arguments
 	 ;
 
-fargs : (IDENTIFIER (COMMA)?)+
+fargs : (IDENTIFIER (COMMA)?)+ #ST_FunctionArguments
 	  ;
 
 /*

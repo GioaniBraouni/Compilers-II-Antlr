@@ -55,6 +55,8 @@
     <Compile Include="Grammar.g4.parser.cs">
       <DependentUpon>Grammar.g4</DependentUpon>
     </Compile>
+    <Compile Include="STPrinterVisitor.cs" />
+    <None Include="bin\Debug\ST.dot" />
     <None Include="obj\Debug\GrammarBaseListener.cs" />
     <None Include="obj\Debug\GrammarBaseVisitor.cs" />
     <None Include="obj\Debug\GrammarLexer.cs" />
@@ -72,6 +74,7 @@
     </Antlr4>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bin\Debug\ST.gif" />
     <Content Include="bin\Debug\test.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
