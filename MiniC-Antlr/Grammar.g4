@@ -18,7 +18,7 @@ selectionStatement : ifStatement
 				   | switchStatement 
 				   ;
 
-ifStatement : IF LP expression RP compoundStatement (ELSEIF compoundStatement)* (ELSE compoundStatement)?  #ST_If
+ifStatement : IF LP expression RP statement (ELSEIF LP expression RP  statement)* (ELSE statement)?  #ST_If
 			;
 
 switchStatement: SWITCH LP expression RP LB caseOptions+ defaultOption? RB		#ST_Switch				 
@@ -36,10 +36,10 @@ iteretionStatement : whileStatement
 				   | forStatement   		
 				   ;
 
-whileStatement : WHILE LP expression RP compoundStatement	    #ST_While
+whileStatement : WHILE LP expression RP statement	    #ST_While
 			   ;
 
-doWhileStatement : DO compoundStatement WHILE LP expression RP  #ST_DoWhile
+doWhileStatement : DO compoundStatement WHILE LP expression RP statement  #ST_DoWhile
 				 ;
 forStatement : LP expression? QM expression? QM expression RP statement  #ST_For	
 			   ;

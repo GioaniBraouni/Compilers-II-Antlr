@@ -49,12 +49,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ASTElement.cs" />
+    <Compile Include="ASTGenerator.cs" />
+    <Compile Include="CNodeType.cs" />
     <Compile Include="Grammar.g4.lexer.cs">
       <DependentUpon>Grammar.g4</DependentUpon>
     </Compile>
     <Compile Include="Grammar.g4.parser.cs">
       <DependentUpon>Grammar.g4</DependentUpon>
     </Compile>
+    <Compile Include="GrammarType.cs" />
     <Compile Include="STPrinterVisitor.cs" />
     <None Include="bin\Debug\ST.dot" />
     <None Include="obj\Debug\GrammarBaseListener.cs" />
