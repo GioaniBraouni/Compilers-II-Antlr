@@ -24,10 +24,10 @@ ifStatement : IF LP expression RP statement (ELSEIF LP expression RP  statement)
 switchStatement: SWITCH LP expression RP LB caseOptions+ defaultOption? RB		#ST_Switch				 
 			   ;
 
-caseOptions : CASE expression COLON statementList 			#ST_CaseOptions	
+caseOptions : CASE expression COLON statement 			#ST_CaseOptions	
 					 ;
 
-defaultOption : DEFAULT COLON statementList					#ST_DefaultOptions
+defaultOption : DEFAULT COLON statement					#ST_DefaultOptions
 				 ;
 
 	
@@ -41,7 +41,7 @@ whileStatement : WHILE LP expression RP statement	    #ST_While
 
 doWhileStatement : DO compoundStatement WHILE LP expression RP statement  #ST_DoWhile
 				 ;
-forStatement : LP expression? QM expression? QM expression RP statement  #ST_For	
+forStatement :  FOR LP expression? QM expression? QM expression RP statement  #ST_For	
 			   ;
 
 compoundStatement : LB statementList? RB

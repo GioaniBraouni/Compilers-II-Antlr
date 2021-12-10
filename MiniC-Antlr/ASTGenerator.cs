@@ -36,7 +36,8 @@ namespace MiniC_Antlr
                 Visit(child);
             }
             m_contextData.Pop();
-            return base.VisitST_CompileUnit(context);
+
+            return 0;
         }
 
         public override int VisitST_FunctionDefinition(GrammarParser.ST_FunctionDefinitionContext context)
@@ -50,33 +51,49 @@ namespace MiniC_Antlr
 
             (GrammarASTElement, int) t;
 
-            t = (m_root, CFunctionDefinition.CT_FNAME);
+            t = (newnode, CFunctionDefinition.CT_FNAME);
             m_contextData.Push(t);
             Visit(context.IDENTIFIER());
             m_contextData.Pop();
 
-            t = (m_root, CFunctionDefinition.CT_FARGS);
+            t = (newnode, CFunctionDefinition.CT_FARGS);
             m_contextData.Push(t);
             Visit(context.fargs());
             m_contextData.Pop();
 
-            t = (m_root, CFunctionDefinition.CT_COMPOUNDSTATEMENT);
+            t = (newnode, CFunctionDefinition.CT_COMPOUNDSTATEMENT);
             m_contextData.Push(t);
             Visit(context.compoundStatement());
             m_contextData.Pop();
 
-            return base.VisitST_FunctionDefinition(context);
+            return 0;
         }
 
         public override int VisitST_Return(GrammarParser.ST_ReturnContext context)
         {
+            CReturnStatement newnode = new CReturnStatement();
+
+            (GrammarASTElement, int) parentData = m_contextData.Peek();
+            parentData.Item1.AddChild(newnode, parentData.Item2);
+
+            newnode.MParent = parentData.Item1;
+
+            (GrammarASTElement, int) t = (newnode, CReturnStatement.CT_RETURNVALUE);
+            m_contextData.Push(t);
+            Visit(context.expression());
+            m_contextData.Pop();
             return base.VisitST_Return(context);
         }
 
         public override int VisitST_Break(GrammarParser.ST_BreakContext context)
         {
+            CBreakStatement newnode = new CBreakStatement();
 
-            return base.VisitST_Break(context);
+            (GrammarASTElement, int) parentData = m_contextData.Peek();
+            parentData.Item1.AddChild(newnode, parentData.Item2);
+
+            newnode.MParent = parentData.Item1;
+            return 0;
         }
 
         public override int VisitST_If(GrammarParser.ST_IfContext context)
@@ -90,33 +107,35 @@ namespace MiniC_Antlr
 
             (GrammarASTElement, int) t;
 
-            t = (m_root, CIfStatement.CT_CONDITION);
+            t = (newnode, CIfStatement.CT_CONDITION);
             m_contextData.Push(t);
-            foreach (var expressionContext in context.expression()) Visit(expressionContext);
+            Visit(context.expression(0));
             m_contextData.Pop();
 
-            t = (m_root, CIfStatement.CT_COMPOUNDSTATEMENT);
+            t = (newnode, CIfStatement.CT_STATEMENT);
             m_contextData.Push(t);
-            foreach (GrammarParser.StatementContext statementContext in context.statement()) Visit(statementContext);
+            Visit(context.statement(0));
             m_contextData.Pop();
 
-            t = (m_root, CIfStatement.CT_CONDITION2);
+            t = (newnode, CIfStatement.CT_CONDITION2);
             m_contextData.Push(t);
-            foreach (var expressionContext in context.expression()) Visit(expressionContext);
+            Visit(context.expression(1));
             m_contextData.Pop();
 
-            t = (m_root, CIfStatement.CT_COMPOUNDSTATEMENT2);
+            t = (newnode, CIfStatement.CT_STATEMENT2);
             m_contextData.Push(t);
-            foreach (GrammarParser.StatementContext statementContext in context.statement()) Visit(statementContext);
+            Visit(context.statement(2));
             m_contextData.Pop();
 
-            t = (m_root, CIfStatement.CT_COMPOUNDSTATEMENT3);
+            t = (newnode, CIfStatement.CT_STATEMENT3);
             m_contextData.Push(t);
-            foreach (GrammarParser.StatementContext statementContext in context.statement()) Visit(statementContext);
+            Visit(context.statement(3));
             m_contextData.Pop();
 
-            return base.VisitST_If(context);
+            return 0;
         }
+
+
 
         public override int VisitST_Switch(GrammarParser.ST_SwitchContext context)
         {
@@ -129,131 +148,478 @@ namespace MiniC_Antlr
 
             (GrammarASTElement, int) t;
 
-            t = (m_root, CSwitch.CT_CONDITION);
+            t = (newnode, CSwitch.CT_CONDITION);
             m_contextData.Push(t);
             Visit(context.expression());
             m_contextData.Pop();
-            return base.VisitST_Switch(context);
-        }
 
+            t = (newnode, CSwitch.CT_CASE);
+            m_contextData.Push(t);
+            foreach (GrammarParser.CaseOptionsContext child in context.caseOptions()) Visit(child);
+            m_contextData.Pop();
+
+            if (context.defaultOption() != null)
+            {
+                t = (newnode, CSwitch.CT_DEFAULT);
+                m_contextData.Push(t);
+                Visit(context.defaultOption());
+                m_contextData.Pop();
+            }
+
+            return 0;
+        }
+        
         public override int VisitST_CaseOptions(GrammarParser.ST_CaseOptionsContext context)
         {
-            return base.VisitST_CaseOptions(context);
+            CCaseOptions newnode = new CCaseOptions();
+
+            (GrammarASTElement, int) parentData = m_contextData.Peek();
+            parentData.Item1.AddChild(newnode, parentData.Item2);
+
+            newnode.MParent = parentData.Item1;
+
+            (GrammarASTElement, int) t;
+
+            t = (newnode, CCaseOptions.CT_CASECONDITION);
+            m_contextData.Push(t);
+            Visit(context.expression());
+            m_contextData.Pop();
+
+            t = (newnode, CCaseOptions.CT_STATEMENT);
+            m_contextData.Push(t);
+            Visit(context.statement());
+            m_contextData.Pop();
+
+            return 0;
         }
 
         public override int VisitST_DefaultOptions(GrammarParser.ST_DefaultOptionsContext context)
         {
-            return base.VisitST_DefaultOptions(context);
-        }
+            CDefaultOption newnode = new CDefaultOption();
 
+            (GrammarASTElement, int) parentData = m_contextData.Peek();
+            parentData.Item1.AddChild(newnode, parentData.Item2);
+
+            newnode.MParent = parentData.Item1;
+
+            (GrammarASTElement, int) t;
+
+            t = (newnode, CDefaultOption.CT_STATEMENT);
+            m_contextData.Push(t);
+            Visit(context.statement());
+            m_contextData.Pop();
+
+            return 0;
+        }
+        
         public override int VisitST_While(GrammarParser.ST_WhileContext context)
         {
-            return base.VisitST_While(context);
+            CWhileStatement newnode = new CWhileStatement();
+
+            (GrammarASTElement, int) parentData = m_contextData.Peek();
+            parentData.Item1.AddChild(newnode, parentData.Item2);
+
+            newnode.MParent = parentData.Item1;
+
+            (GrammarASTElement, int) t;
+
+            t = (newnode, CWhileStatement.CT_CONDITION);
+            m_contextData.Push(t);
+            Visit(context.expression());
+            m_contextData.Pop();
+
+            t = (m_root, CWhileStatement.CT_STATEMENT);
+            m_contextData.Push(t);
+            Visit(context.statement());
+            m_contextData.Pop();
+            return 0;
         }
 
         public override int VisitST_DoWhile(GrammarParser.ST_DoWhileContext context)
         {
-            return base.VisitST_DoWhile(context);
+            CDoWhileStatement newnode = new CDoWhileStatement();
+
+            (GrammarASTElement, int) parentData = m_contextData.Peek();
+            parentData.Item1.AddChild(newnode, parentData.Item2);
+
+            newnode.MParent = parentData.Item1;
+
+            (GrammarASTElement, int) t;
+
+            t = (newnode, CCaseOptions.CT_CASECONDITION);
+            m_contextData.Push(t);
+            Visit(context.expression());
+            m_contextData.Pop();
+
+            t = (newnode, CCaseOptions.CT_STATEMENT);
+            m_contextData.Push(t);
+            Visit(context.expression());
+            m_contextData.Pop();
+            return 0;
         }
 
         public override int VisitST_For(GrammarParser.ST_ForContext context)
         {
-            return base.VisitST_For(context);
-        }
+            CDoWhileStatement newnode = new CDoWhileStatement();
 
-        public override int VisitExprDIVMULT(GrammarParser.ExprDIVMULTContext context)
-        {
-            return base.VisitExprDIVMULT(context);
-        }
+            (GrammarASTElement, int) parentData = m_contextData.Peek();
+            parentData.Item1.AddChild(newnode, parentData.Item2);
 
-        public override int VisitExprPLUSMINUS(GrammarParser.ExprPLUSMINUSContext context)
-        {
-            return base.VisitExprPLUSMINUS(context);
-        }
+            newnode.MParent = parentData.Item1;
 
-        public override int VisitExprPLUSPLUS(GrammarParser.ExprPLUSPLUSContext context)
-        {
-            return base.VisitExprPLUSPLUS(context);
-        }
+            (GrammarASTElement, int) t;
 
-        public override int VisitPLUSPLUSExpr(GrammarParser.PLUSPLUSExprContext context)
-        {
-            return base.VisitPLUSPLUSExpr(context);
-        }
+            t = (newnode, CForWhileStatement.CT_EXPRESSION);
+            m_contextData.Push(t);
+            Visit(context.expression(0));
+            m_contextData.Pop();
 
-        public override int VisitMINUSMINUSExpr(GrammarParser.MINUSMINUSExprContext context)
-        {
-            return base.VisitMINUSMINUSExpr(context);
-        }
+            t = (newnode, CForWhileStatement.CT_EXPRESSION2);
+            m_contextData.Push(t);
+            Visit(context.expression(1));
+            m_contextData.Pop();
 
-        public override int VisitExprMINUSMINUS(GrammarParser.ExprMINUSMINUSContext context)
-        {
-            return base.VisitExprMINUSMINUS(context);
-        }
+            t = (newnode, CForWhileStatement.CT_EXPRESSION3);
+            m_contextData.Push(t);
+            Visit(context.expression(2));
+            m_contextData.Pop();
 
-        public override int VisitExprASSIGN(GrammarParser.ExprASSIGNContext context)
-        {
-            return base.VisitExprASSIGN(context);
-        }
 
-        public override int VisitExprNOT(GrammarParser.ExprNOTContext context)
-        {
-            return base.VisitExprNOT(context);
-        }
+            if (context.statement() != null)
+            {
+                t = (newnode, CForWhileStatement.CT_STATEMENT);
+                m_contextData.Push(t);
+                Visit(context.statement());
+                m_contextData.Pop();
+            }
 
-        public override int VisitExprAND(GrammarParser.ExprANDContext context)
-        {
-            return base.VisitExprAND(context);
-        }
-
-        public override int VisitExprOR(GrammarParser.ExprORContext context)
-        {
-            return base.VisitExprOR(context);
-        }
-
-        public override int VisitExprGT(GrammarParser.ExprGTContext context)
-        {
-            return base.VisitExprGT(context);
-        }
-
-        public override int VisitExprGTE(GrammarParser.ExprGTEContext context)
-        {
-            return base.VisitExprGTE(context);
-        }
-
-        public override int VisitExprLT(GrammarParser.ExprLTContext context)
-        {
-            return base.VisitExprLT(context);
-        }
-
-        public override int VisitExprLTE(GrammarParser.ExprLTEContext context)
-        {
-            return base.VisitExprLTE(context);
-        }
-
-        public override int VisitExprEQUAL(GrammarParser.ExprEQUALContext context)
-        {
-            return base.VisitExprEQUAL(context);
-        }
-
-        public override int VisitExprNEQUAL(GrammarParser.ExprNEQUALContext context)
-        {
-            return base.VisitExprNEQUAL(context);
-        }
-
-        public override int VisitST_Arguments(GrammarParser.ST_ArgumentsContext context)
-        {
-            return base.VisitST_Arguments(context);
-        }
-
-        public override int VisitST_FunctionArguments(GrammarParser.ST_FunctionArgumentsContext context)
-        {
-            return base.VisitST_FunctionArguments(context);
+            return 0;
         }
 
         public override int VisitTerminal(ITerminalNode node)
         {
-            return base.VisitTerminal(node);
+            (GrammarASTElement, int) parent_data;
+            switch (node.Symbol.Type)
+            {
+                case GrammarLexer.NUMBER:
+                    CNUMBER numNode = new CNUMBER(node.Symbol.Text);
+                    parent_data = m_contextData.Peek();
+                    parent_data.Item1.AddChild(numNode, parent_data.Item2);
+                    numNode.MParent = parent_data.Item1;
+                    break;
+                case GrammarLexer.IDENTIFIER:
+                    CIDENTIFIER identifierNode = new CIDENTIFIER(node.Symbol.Text);
+                    parent_data = m_contextData.Peek();
+                    parent_data.Item1.AddChild(identifierNode, parent_data.Item2);
+                    identifierNode.MParent = parent_data.Item1;
+                    break;
+            }
+            return 0;
         }
+
+
+        public override int VisitExprDIVMULT(GrammarParser.ExprDIVMULTContext context)
+        {
+            (GrammarASTElement, int) parent_data;
+            switch (context.op.Type)
+            {
+                case GrammarLexer.MULT:
+                    CMultiplication multNode = new CMultiplication();
+                    parent_data = m_contextData.Peek();
+                    parent_data.Item1.AddChild(multNode, parent_data.Item2);
+                    multNode.MParent = parent_data.Item1;
+
+                    m_contextData.Push((multNode, CMultiplication.CT_LEFT));
+                    Visit(context.expression(0));
+                    m_contextData.Pop();
+
+                    m_contextData.Push((multNode, CMultiplication.CT_RIGHT));
+                    Visit(context.expression(1));
+                    m_contextData.Pop();
+                    break;
+                case GrammarLexer.DIV:
+                    CDivision divNode = new CDivision();
+                    parent_data = m_contextData.Peek();
+                    parent_data.Item1.AddChild(divNode, parent_data.Item2);
+                    divNode.MParent = parent_data.Item1;
+
+                    m_contextData.Push((divNode, CDivision.CT_LEFT));
+                    Visit(context.expression(0));
+                    m_contextData.Pop();
+
+                    m_contextData.Push((divNode, CDivision.CT_RIGHT));
+                    Visit(context.expression(1));
+                    m_contextData.Pop();
+
+                    break;
+            }
+            return 0;
+        }
+
+        public override int VisitExprPLUSMINUS(GrammarParser.ExprPLUSMINUSContext context)
+        {
+            (GrammarASTElement, int) parent_data;
+            switch (context.op.Type)
+            {
+                case GrammarLexer.PLUS:
+                    CAddition addNode = new CAddition();
+                    parent_data = m_contextData.Peek();
+                    parent_data.Item1.AddChild(addNode, parent_data.Item2);
+                    addNode.MParent = parent_data.Item1;
+
+                    m_contextData.Push((addNode, CAddition.CT_LEFT));
+                    Visit(context.expression(0));
+                    m_contextData.Pop();
+
+                    m_contextData.Push((addNode, CAddition.CT_RIGHT));
+                    Visit(context.expression(1));
+                    m_contextData.Pop();
+                    break;
+                case GrammarLexer.MINUS:
+                    CSubtraction subNode = new CSubtraction();
+                    parent_data = m_contextData.Peek();
+                    parent_data.Item1.AddChild(subNode, parent_data.Item2);
+                    subNode.MParent = parent_data.Item1;
+
+                    m_contextData.Push((subNode, CSubtraction.CT_LEFT));
+                    Visit(context.expression(0));
+                    m_contextData.Pop();
+
+                    m_contextData.Push((subNode, CSubtraction.CT_RIGHT));
+                    Visit(context.expression(1));
+                    m_contextData.Pop();
+
+                    break;
+            }
+            return 0;
+        }
+
+        public override int VisitExprPLUSPLUS(GrammarParser.ExprPLUSPLUSContext context)
+        {
+            CExprPlusPlus node = new CExprPlusPlus();
+            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            parent_data.Item1.AddChild(node, parent_data.Item2);
+            node.MParent = parent_data.Item1;
+
+            m_contextData.Push((node, CExprPlusPlus.CT_LEFT));
+            Visit(context.expression());
+            m_contextData.Pop();
+            return 0;
+        }
+
+        public override int VisitPLUSPLUSExpr(GrammarParser.PLUSPLUSExprContext context)
+        {
+            CPlusPlusExpression node = new CPlusPlusExpression();
+            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            parent_data.Item1.AddChild(node, parent_data.Item2);
+            node.MParent = parent_data.Item1;
+
+            m_contextData.Push((node, CPlusPlusExpression.CT_RIGHT));
+            Visit(context.expression());
+            m_contextData.Pop();
+            return 0;
+        }
+
+        public override int VisitExprMINUSMINUS(GrammarParser.ExprMINUSMINUSContext context)
+        {
+            CExpressionMinusMInus node = new CExpressionMinusMInus();
+            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            parent_data.Item1.AddChild(node, parent_data.Item2);
+            node.MParent = parent_data.Item1;
+
+            m_contextData.Push((node, CExpressionMinusMInus.CT_LEFT));
+            Visit(context.expression());
+            m_contextData.Pop();
+            return 0;
+            
+        }
+
+        public override int VisitMINUSMINUSExpr(GrammarParser.MINUSMINUSExprContext context)
+        {
+            CMinusMInusExpression node = new CMinusMInusExpression();
+            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            parent_data.Item1.AddChild(node, parent_data.Item2);
+            node.MParent = parent_data.Item1;
+
+            m_contextData.Push((node, CMinusMInusExpression.CT_RIGHT));
+            Visit(context.expression());
+            m_contextData.Pop();
+            return 0;
+        }
+
+        public override int VisitExprASSIGN(GrammarParser.ExprASSIGNContext context)
+        {
+            CAssignment node = new CAssignment();
+            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            parent_data.Item1.AddChild(node, parent_data.Item2);
+            node.MParent = parent_data.Item1;
+
+            m_contextData.Push((node, CAssignment.CT_LEFT));
+            Visit(context.IDENTIFIER());
+            m_contextData.Pop();
+
+            m_contextData.Push((node, CAssignment.CT_RIGHT));
+            Visit(context.expression());
+            m_contextData.Pop();
+            return 0;
+        }
+
+        public override int VisitExprNOT(GrammarParser.ExprNOTContext context)
+        {
+            CNot node = new CNot();
+            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            parent_data.Item1.AddChild(node, parent_data.Item2);
+            node.MParent = parent_data.Item1;
+
+            m_contextData.Push((node, CNot.CT_RIGHT));
+            Visit(context.expression());
+            m_contextData.Pop();
+            return 0;
+        }
+
+        public override int VisitExprAND(GrammarParser.ExprANDContext context)
+        {
+            CAnd node = new CAnd();
+            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            parent_data.Item1.AddChild(node, parent_data.Item2);
+            node.MParent = parent_data.Item1;
+
+            m_contextData.Push((node, CAnd.CT_LEFT));
+            Visit(context.expression(0));
+            m_contextData.Pop();
+
+            m_contextData.Push((node, CAnd.CT_RIGHT));
+            Visit(context.expression(1));
+            m_contextData.Pop();
+
+            return 0;
+        }
+
+        public override int VisitExprOR(GrammarParser.ExprORContext context)
+        {
+            COr node = new COr();
+            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            parent_data.Item1.AddChild(node, parent_data.Item2);
+            node.MParent = parent_data.Item1;
+
+            m_contextData.Push((node, COr.CT_LEFT));
+            Visit(context.expression(0));
+            m_contextData.Pop();
+
+            m_contextData.Push((node, COr.CT_RIGHT));
+            Visit(context.expression(1));
+            m_contextData.Pop();
+
+            return 0;
+        }
+
+        public override int VisitExprGT(GrammarParser.ExprGTContext context)
+        {
+            CGreaterThan node = new CGreaterThan();
+            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            parent_data.Item1.AddChild(node, parent_data.Item2);
+            node.MParent = parent_data.Item1;
+
+            m_contextData.Push((node, CGreaterThan.CT_LEFT));
+            Visit(context.expression(0));
+            m_contextData.Pop();
+
+            m_contextData.Push((node, CGreaterThan.CT_RIGHT));
+            Visit(context.expression(1));
+            m_contextData.Pop();
+
+            return 0;
+        }
+
+        public override int VisitExprGTE(GrammarParser.ExprGTEContext context)
+        {
+            CGreaterThanEqual node = new CGreaterThanEqual();
+            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            parent_data.Item1.AddChild(node, parent_data.Item2);
+            node.MParent = parent_data.Item1;
+
+            m_contextData.Push((node, CGreaterThanEqual.CT_LEFT));
+            Visit(context.expression(0));
+            m_contextData.Pop();
+
+            m_contextData.Push((node, CGreaterThanEqual.CT_RIGHT));
+            Visit(context.expression(1));
+            m_contextData.Pop();
+
+            return 0;
+        }
+
+        public override int VisitExprLT(GrammarParser.ExprLTContext context)
+        {
+            CLessThan node = new CLessThan();
+            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            parent_data.Item1.AddChild(node, parent_data.Item2);
+            node.MParent = parent_data.Item1;
+
+            m_contextData.Push((node, CLessThan.CT_LEFT));
+            Visit(context.expression(0));
+            m_contextData.Pop();
+
+            m_contextData.Push((node, CLessThan.CT_RIGHT));
+            Visit(context.expression(1));
+            m_contextData.Pop();
+
+            return 0;
+        }
+
+        public override int VisitExprLTE(GrammarParser.ExprLTEContext context)
+        {
+            CLessThanEqual node = new CLessThanEqual();
+            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            parent_data.Item1.AddChild(node, parent_data.Item2);
+            node.MParent = parent_data.Item1;
+
+            m_contextData.Push((node, CLessThanEqual.CT_LEFT));
+            Visit(context.expression(0));
+            m_contextData.Pop();
+
+            m_contextData.Push((node, CLessThanEqual.CT_RIGHT));
+            Visit(context.expression(1));
+            m_contextData.Pop();
+
+            return 0;
+        }
+
+        public override int VisitExprEQUAL(GrammarParser.ExprEQUALContext context)
+        {
+            CEqual node = new CEqual();
+            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            parent_data.Item1.AddChild(node, parent_data.Item2);
+            node.MParent = parent_data.Item1;
+
+            m_contextData.Push((node, CEqual.CT_LEFT));
+            Visit(context.expression(0));
+            m_contextData.Pop();
+
+            m_contextData.Push((node, CEqual.CT_RIGHT));
+            Visit(context.expression(1));
+            m_contextData.Pop();
+
+            return 0;
+        }
+
+        public override int VisitExprNEQUAL(GrammarParser.ExprNEQUALContext context)
+        {
+            CNotEqual node = new CNotEqual();
+            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            parent_data.Item1.AddChild(node, parent_data.Item2);
+            node.MParent = parent_data.Item1;
+
+            m_contextData.Push((node, CNotEqual.CT_LEFT));
+            Visit(context.expression(0));
+            m_contextData.Pop();
+
+            m_contextData.Push((node, CNotEqual.CT_RIGHT));
+            Visit(context.expression(1));
+            m_contextData.Pop();
+
+            return 0;
+        }
+
     }
 }

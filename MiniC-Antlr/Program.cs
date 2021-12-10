@@ -24,7 +24,13 @@ namespace MiniC_Antlr
             Console.WriteLine(tree.ToStringTree());
 
             STPrinterVisitor stPrinter = new STPrinterVisitor(); 
-            stPrinter.Visit(tree);   
+            stPrinter.Visit(tree);
+
+            ASTGenerator astGenerator = new ASTGenerator();
+            astGenerator.Visit(tree);
+
+            GrammarBaseASTVisitor<int> dummyAstVisitor = new GrammarBaseASTVisitor<int>();
+            dummyAstVisitor.Visit(astGenerator.MRoot);
         }
     }
 }
