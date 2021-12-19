@@ -16,6 +16,8 @@ namespace MiniC_Antlr
 
         public virtual T VisitChildren(ASTElement node)
         {
+            if (node.Type == NodeType.NT_BREAK_STATEMENT)
+                return default(T);
             for (int i = 0; i < node.getContextNumber(); i++)
             {
                 foreach (ASTElement child in node.GetChildren(i))

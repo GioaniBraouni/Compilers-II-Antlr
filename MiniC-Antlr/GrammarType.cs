@@ -383,7 +383,7 @@ namespace MiniC_Antlr
 
     public class CDoWhileStatement : ASTElement
     {
-        public const int CT_STATEMENT = 0, CT_CONDITION = 1;
+        public const int CT_COMPOUNDSTATEMENT = 0, CT_CONDITION = 1;
         public static readonly string[] msc_contextNames = { "DoWhileBody", "DoWhileCondition" };
         public CDoWhileStatement() : base(NodeType.NT_DOWHILESTATEMENT,2)
         {
@@ -398,8 +398,8 @@ namespace MiniC_Antlr
 
     public class CForWhileStatement : ASTElement
     {
-        public const int CT_EXPRESSION = 0, CT_EXPRESSION2 = 1 , CT_EXPRESSION3=2 , CT_STATEMENT=3;
-        public static readonly string[] msc_contextNames = { "ForExpr1", "ForExpr2", "ForExpr3", "ForExpr4" };
+        public const int CT_EXPRESSION = 0, CT_EXPRESSION2 = 1 , CT_EXPRESSION3=2 , CT_COMPOUNDSTATEMENT=3;
+        public static readonly string[] msc_contextNames = { "ForExpr1", "ForExpr2", "ForExpr3", "ForBody" };
         public CForWhileStatement() : base(NodeType.NT_FORLOOPSTATEMENT,4)
         {
         }

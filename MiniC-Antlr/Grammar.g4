@@ -42,9 +42,9 @@ iteretionStatement : whileStatement
 whileStatement : WHILE LP expression RP statement	    #ST_While
 			   ;
 
-doWhileStatement : DO compoundStatement WHILE LP expression RP statement  #ST_DoWhile
+doWhileStatement : DO compoundStatement WHILE LP expression RP #ST_DoWhile
 				 ;
-forStatement :  FOR LP expression? QM expression? QM expression RP statement  #ST_For	
+forStatement :  FOR LP expression? QM expression? QM expression RP compoundStatement  #ST_For	
 			   ;
 
 compoundStatement : LB statementList? RB

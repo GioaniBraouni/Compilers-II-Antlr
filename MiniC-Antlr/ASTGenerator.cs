@@ -244,9 +244,9 @@ namespace MiniC_Antlr
 
             (ASTElement, int) t;
 
-            t = (newnode, CDoWhileStatement.CT_STATEMENT);
+            t = (newnode, CDoWhileStatement.CT_COMPOUNDSTATEMENT);
             m_contextData.Push(t);
-            Visit(context.expression());
+            Visit(context.compoundStatement());
             m_contextData.Pop();
 
             t = (newnode, CDoWhileStatement.CT_CONDITION);
@@ -258,7 +258,7 @@ namespace MiniC_Antlr
 
         public override int VisitST_For(GrammarParser.ST_ForContext context)
         {
-            CDoWhileStatement newnode = new CDoWhileStatement();
+            CForWhileStatement newnode = new CForWhileStatement();
 
             (ASTElement, int) parentData = m_contextData.Peek();
             parentData.Item1.AddChild(newnode, parentData.Item2);
@@ -267,27 +267,35 @@ namespace MiniC_Antlr
 
             (ASTElement, int) t;
 
-            t = (newnode, CForWhileStatement.CT_EXPRESSION);
-            m_contextData.Push(t);
-            Visit(context.expression(0));
-            m_contextData.Pop();
-
-            t = (newnode, CForWhileStatement.CT_EXPRESSION2);
-            m_contextData.Push(t);
-            Visit(context.expression(1));
-            m_contextData.Pop();
-
-            t = (newnode, CForWhileStatement.CT_EXPRESSION3);
-            m_contextData.Push(t);
-            Visit(context.expression(2));
-            m_contextData.Pop();
-
-
-            if (context.statement() != null)
+            if (context.expression(0) != null)
             {
-                t = (newnode, CForWhileStatement.CT_STATEMENT);
+                t = (newnode, CForWhileStatement.CT_EXPRESSION);
                 m_contextData.Push(t);
-                Visit(context.statement());
+                Visit(context.expression(0));
+                m_contextData.Pop();
+            }
+
+            if (context.expression(1) != null)
+            {
+                t = (newnode, CForWhileStatement.CT_EXPRESSION2);
+                m_contextData.Push(t);
+                Visit(context.expression(1));
+                m_contextData.Pop();
+            }
+
+            if (context.expression(2) != null)
+            {
+                t = (newnode, CForWhileStatement.CT_EXPRESSION3);
+                m_contextData.Push(t);
+                Visit(context.expression(2));
+                m_contextData.Pop();
+            }
+
+            if (context.compoundStatement() != null)
+            {
+                t = (newnode, CForWhileStatement.CT_COMPOUNDSTATEMENT);
+                m_contextData.Push(t);
+                Visit(context.compoundStatement());
                 m_contextData.Pop();
             }
 

@@ -360,7 +360,7 @@ namespace MiniC_Antlr
             //Generate edge with parent (ommited here)
             m_dotFile.WriteLine($"{node.MParent.MName}->{node.MName};");
             //Generate contexts
-            ExtractSubgraphs(node, CDoWhileStatement.CT_STATEMENT, CDoWhileStatement.msc_contextNames);
+            ExtractSubgraphs(node, CDoWhileStatement.CT_COMPOUNDSTATEMENT, CDoWhileStatement.msc_contextNames);
             ExtractSubgraphs(node, CDoWhileStatement.CT_CONDITION, CDoWhileStatement.msc_contextNames);
             
             base.VisitCDoWhileStatement(node);
@@ -375,7 +375,7 @@ namespace MiniC_Antlr
             ExtractSubgraphs(node, CForWhileStatement.CT_EXPRESSION, CForWhileStatement.msc_contextNames);
             ExtractSubgraphs(node, CForWhileStatement.CT_EXPRESSION2, CForWhileStatement.msc_contextNames);
             ExtractSubgraphs(node, CForWhileStatement.CT_EXPRESSION3, CForWhileStatement.msc_contextNames);
-            ExtractSubgraphs(node, CForWhileStatement.CT_STATEMENT, CForWhileStatement.msc_contextNames);
+            ExtractSubgraphs(node, CForWhileStatement.CT_COMPOUNDSTATEMENT, CForWhileStatement.msc_contextNames);
 
             base.VisitCForWhileStatement(node);
             return 0;
@@ -385,6 +385,8 @@ namespace MiniC_Antlr
         {
             //Generate edge with parent (ommited here)
             m_dotFile.WriteLine($"{node.MParent.MName}->{node.MName};");
+            ExtractSubgraphs(node, CReturnStatement.CT_RETURNVALUE, CReturnStatement.msc_contextNames);
+            base.VisitCReturnStatement(node);
             return 0;
         }
 
