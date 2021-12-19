@@ -11,14 +11,17 @@ namespace MiniC_Antlr
     {
         public virtual T Visit(ASTElement node)
         {
-            return default(T);
+            return node.Accept(this);   
         }
 
         public virtual T VisitChildren(ASTElement node)
         {
-            foreach (ASTElement child in node)
+            for (int i = 0; i < node.getContextNumber(); i++)
             {
-                Visit(child);
+                foreach (ASTElement child in node.GetChildren(i))
+                {
+                    Visit(child);
+                }
             }
             return default(T);
         }
@@ -75,12 +78,12 @@ namespace MiniC_Antlr
 
         public virtual T VisitCNUMBER(CNUMBER node)
         {
-            return VisitChildren(node);
+            return default(T);
         }
 
         public virtual T VisitCIDENTIFIER(CIDENTIFIER node)
         {
-            return VisitChildren(node);
+            return default(T);
         }
 
         public virtual T VisitCAnd(CAnd node)
@@ -153,11 +156,6 @@ namespace MiniC_Antlr
             return VisitChildren(node);
         }
 
-        public virtual T VisitCCompoundStatement(CCompoundStatement node)
-        {
-            return VisitChildren(node);
-        }
-
         public virtual T VisitCReturnStatement(CReturnStatement node)
         {
             return VisitChildren(node);
@@ -187,6 +185,7 @@ namespace MiniC_Antlr
         {
             return VisitChildren(node);
         }
+
 
 
     }

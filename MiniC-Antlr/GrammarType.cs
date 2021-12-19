@@ -6,52 +6,7 @@ using System.Threading.Tasks;
 
 namespace MiniC_Antlr
 {
-    public class GrammarType : CNodeType<GrammarType.NodeType>
-    {
-        public GrammarType(NodeType nodeType) : base(nodeType)
-        {
-        }
-
-        public enum NodeType
-        {
-        NT_FUNCTION ,NT_RETURN, NT_IF, NT_SWITCH, NT_CASEOPTIONS, 
-        NT_DEFAULTOPTION, NT_WHILE, NT_DOWHILE, NT_FORLOOP, NT_BREAK, NT_ADDITION, NT_SUBTRACTION, NT_DIVISION, NT_MULTIPLICATION, 
-        NT_OR, NT_AND, NT_NOT, NT_EQUAL, NT_NEQUAL, NT_GT, NT_LT, NT_GTE, NT_LTE, NT_QM,NT_COMPOUND,NT_STLIST,NT_ST,
-        NT_LP, NT_RP, NT_LB, NT_RB, NT_COMMA, NT_ASSIGNMENT, NT_COLON, NT_IDENTIFIER, NT_NUMBER,NT_EXPRPLUSPLUS,NT_EXPRMINUSMINUS,
-        NT_NA, NT_COMPILEUNIT,NT_PLUSPLUSEXPR, NT_MINUSMINUSEXPR,
-        }
-
-        public override NodeType Default()
-        {
-
-            return NodeType.NT_NA;
-        }
-
-        public override NodeType NA()
-        {
-            return NodeType.NT_NA;
-        }
-
-        public override NodeType Map(int type)
-        {
-            return (NodeType) type;
-        }
-
-        public override int Map(NodeType type)
-        {
-            return (int) type;
-        }
-    }
-
-    public abstract class GrammarASTElement : ASTElement
-    {
-        private GrammarType m_nodeType;
-
-        protected GrammarASTElement(int context , GrammarType.NodeType Type) : base(context)
-        {
-            m_nodeType = new GrammarType(Type);  
-        }
-    }
+    
     /*
     NT_FUNCTION ,NT_RETURN, NT_IF, NT_ELSEIF, NT_ELSE, NT_SWITCH, NT_CASE, 
     NT_DEFAULT, NT_WHILE, NT_DOWHILE, NT_FORLOOP, NT_BREAK, NT_ADDITION, NT_SUBTRACTION, NT_DIVISION, NT_MULTIPLICATION, 
@@ -59,9 +14,11 @@ namespace MiniC_Antlr
     NT_LP, NT_RP, NT_LB, NT_RB, NT_COMMA, NT_ASSIGNMENT, NT_COLON, NT_IDENTIFIER, NT_NUMBER,
     */
 
-    public class CCompileUnit : GrammarASTElement
+    public class CCompileUnit : ASTElement
     {
-        public const int CT_STATEMENTS = 0, CT_FUNCTIONDEFINITION = 1;
+        public const int CT_STATEMENTLIST = 0, CT_FUNCTIONDEFINITION = 1;
+
+        public static readonly string[] msc_contextNames = {"StatementList", "FunctionDefinition"}; 
 
         public override T Accept<T>(ASTBaseVisitor<T> visitor)
         {
@@ -69,17 +26,18 @@ namespace MiniC_Antlr
             return grammarVisitor.VisitCCompileUnit(this);
         }
 
-        public CCompileUnit() : base(2, GrammarType.NodeType.NT_COMPILEUNIT)
+        public CCompileUnit() : base(NodeType.NT_COMPILEUNIT,2)
         {
 
         }
 
     }
 
-    public class CCaseOptions : GrammarASTElement
+    public class CCaseOptions : ASTElement
     {
         public const int CT_CASECONDITION = 0, CT_STATEMENT = 1;
-        public CCaseOptions() : base(2, GrammarType.NodeType.NT_CASEOPTIONS)
+        public static readonly string[] msc_contextNames = { "CaseCondition", "StatementContext" };
+        public CCaseOptions() : base(NodeType.NT_CASEOPTIONS,2)
         {
 
         }
@@ -91,10 +49,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CAssignment : GrammarASTElement
+    public class CAssignment : ASTElement
     {
         public const int CT_LEFT = 0,CT_RIGHT=1;
-        public CAssignment() : base(2, GrammarType.NodeType.NT_ASSIGNMENT)
+        public static readonly string[] msc_contextNames = { "Left", "Right" };
+        public CAssignment() : base(NodeType.NT_ASSIGNMENT,2)
         {
             
         }
@@ -106,11 +65,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CAddition : GrammarASTElement
+    public class CAddition : ASTElement
     {
         public const int CT_LEFT = 0, CT_RIGHT = 1;   //left=what appears left from the '+', right=what appears right from the '+'
-
-        public CAddition() : base(2, GrammarType.NodeType.NT_ADDITION)
+        public static readonly string[] msc_contextNames = { "Left", "Right" };
+        public CAddition() : base(NodeType.NT_ADDITION,2)
         {
         }
 
@@ -121,11 +80,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CSubtraction : GrammarASTElement
+    public class CSubtraction : ASTElement
     {
         public const int CT_LEFT = 0, CT_RIGHT = 1;   //left=what appears left from the '-', right=what appears right from the '-'
-
-        public CSubtraction() : base(2, GrammarType.NodeType.NT_SUBTRACTION)
+        public static readonly string[] msc_contextNames = { "Left", "Right" };
+        public CSubtraction() : base(NodeType.NT_SUBTRACTION,2)
         {
         }
 
@@ -136,11 +95,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CSwitch : GrammarASTElement
+    public class CSwitch : ASTElement
     {
         public const int CT_CONDITION = 0, CT_CASE = 1,CT_DEFAULT=2;   //left=what appears left from the '-', right=what appears right from the '-'
-
-        public CSwitch() : base(3, GrammarType.NodeType.NT_SWITCH)
+        public static readonly string[] msc_contextNames = { "SwitchCondition", "CaseBody","DefaultBody" };
+        public CSwitch() : base(NodeType.NT_SWITCHCASE,3)
         {
         }
 
@@ -152,11 +111,11 @@ namespace MiniC_Antlr
     }
 
 
-    public class CMultiplication : GrammarASTElement
+    public class CMultiplication : ASTElement
     {
         public const int CT_LEFT = 0, CT_RIGHT = 1;   //left=what appears left from the '*', right=what appears right from the '*'
-
-        public CMultiplication() : base(2, GrammarType.NodeType.NT_MULTIPLICATION)
+        public static readonly string[] msc_contextNames = { "Left", "Right" };
+        public CMultiplication() : base(NodeType.NT_MULTIPLICATION,2)
         {
         }
 
@@ -167,11 +126,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CDivision : GrammarASTElement
+    public class CDivision : ASTElement
     {
         public const int CT_LEFT = 0, CT_RIGHT = 1;   //left=what appears left from the '/', right=what appears right from the '/'
-
-        public CDivision() : base(2, GrammarType.NodeType.NT_DIVISION)
+        public static readonly string[] msc_contextNames = { "Left", "Right" };
+        public CDivision() : base( NodeType.NT_DIVISION,2)
         {
         }
 
@@ -182,11 +141,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CDefaultOption : GrammarASTElement
+    public class CDefaultOption : ASTElement
     {
         public const int CT_STATEMENT = 0;
-
-        public CDefaultOption() : base(1, GrammarType.NodeType.NT_DEFAULTOPTION)
+        public static readonly string[] msc_contextNames = { "StatementContext" };
+        public CDefaultOption() : base(NodeType.NT_DEFAULTOPTION,1)
         {
         }
 
@@ -197,14 +156,14 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CNUMBER : GrammarASTElement
+    public class CNUMBER : ASTElement
     {
         private string m_text;
         private int m_value;
 
         public string MName1 => m_text;
 
-        public CNUMBER(string name) : base(0, GrammarType.NodeType.NT_NUMBER)
+        public CNUMBER(string name) : base(NodeType.NT_NUMBER,0)
         {
             m_text = name;
             m_value = int.Parse(name);
@@ -217,13 +176,13 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CIDENTIFIER : GrammarASTElement
+    public class CIDENTIFIER : ASTElement
     {
         private string m_name;
 
         public string MName1 => m_name;
 
-        public CIDENTIFIER(string name) : base(0, GrammarType.NodeType.NT_IDENTIFIER)
+        public CIDENTIFIER(string name) : base(NodeType.NT_IDENTIFIER,0)
         {
             m_name = name;
         }
@@ -235,11 +194,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CAnd : GrammarASTElement
+    public class CAnd : ASTElement
     {
         public const int CT_LEFT = 0, CT_RIGHT = 1;   //left=what appears left from the '&&', right=what appears right from the '&&'
-
-        public CAnd() : base(2, GrammarType.NodeType.NT_AND)
+        public static readonly string[] msc_contextNames = { "Left", "Right" };
+        public CAnd() : base(NodeType.NT_AND,2)
         {
         }
 
@@ -250,11 +209,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class COr : GrammarASTElement
+    public class COr : ASTElement
     {
         public const int CT_LEFT = 0, CT_RIGHT = 1;   //left=what appears left from the '||', right=what appears right from the '||'
-
-        public COr() : base(2, GrammarType.NodeType.NT_OR)
+        public static readonly string[] msc_contextNames = { "Left", "Right" };
+        public COr() : base(NodeType.NT_OR,2)
         {
         }
 
@@ -265,12 +224,12 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CNot : GrammarASTElement
+    public class CNot : ASTElement
     {
         public const int CT_RIGHT = 0;
 
-
-        public CNot() : base(1, GrammarType.NodeType.NT_NOT)
+        public static readonly string[] msc_contextNames = { "Right" };
+        public CNot() : base(NodeType.NT_NOT,1)
         {
         }
 
@@ -281,11 +240,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CGreaterThan : GrammarASTElement
+    public class CGreaterThan : ASTElement
     {
         public const int CT_LEFT = 0, CT_RIGHT = 1;   //left=what appears left from the '||', right=what appears right from the '||'
-
-        public CGreaterThan() : base(2, GrammarType.NodeType.NT_GT)
+        public static readonly string[] msc_contextNames = { "Left", "Right" };
+        public CGreaterThan() : base(NodeType.NT_GT,2)
         {
         }
 
@@ -296,11 +255,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CGreaterThanEqual : GrammarASTElement
+    public class CGreaterThanEqual : ASTElement
     {
         public const int CT_LEFT = 0, CT_RIGHT = 1;   //left=what appears left from the '||', right=what appears right from the '||'
-
-        public CGreaterThanEqual() : base(2, GrammarType.NodeType.NT_GTE)
+        public static readonly string[] msc_contextNames = { "Left", "Right" };
+        public CGreaterThanEqual() : base(NodeType.NT_GTE,2)
         {
         }
 
@@ -311,11 +270,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CLessThan : GrammarASTElement
+    public class CLessThan : ASTElement
     {
         public const int CT_LEFT = 0, CT_RIGHT = 1;   //left=what appears left from the '||', right=what appears right from the '||'
-
-        public CLessThan() : base(2, GrammarType.NodeType.NT_LT)
+        public static readonly string[] msc_contextNames = { "Left", "Right" };
+        public CLessThan() : base(NodeType.NT_LT,2)
         {
         }
 
@@ -326,11 +285,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CLessThanEqual : GrammarASTElement
+    public class CLessThanEqual : ASTElement
     {
         public const int CT_LEFT = 0, CT_RIGHT = 1;   //left=what appears left from the '||', right=what appears right from the '||'
-
-        public CLessThanEqual() : base(2, GrammarType.NodeType.NT_LTE)
+        public static readonly string[] msc_contextNames = { "Left", "Right" };
+        public CLessThanEqual() : base(NodeType.NT_LTE,2)
         {
         }
 
@@ -341,11 +300,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CEqual : GrammarASTElement
+    public class CEqual : ASTElement
     {
         public const int CT_LEFT = 0, CT_RIGHT = 1;   //left=what appears left from the '||', right=what appears right from the '||'
-
-        public CEqual() : base(2, GrammarType.NodeType.NT_EQUAL)
+        public static readonly string[] msc_contextNames = { "Left", "Right" };
+        public CEqual() : base(NodeType.NT_EQUAL,2)
         {
         }
 
@@ -356,11 +315,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CNotEqual : GrammarASTElement
+    public class CNotEqual : ASTElement
     {
         public const int CT_LEFT = 0, CT_RIGHT = 1;   //left=what appears left from the '||', right=what appears right from the '||'
-
-        public CNotEqual() : base(2, GrammarType.NodeType.NT_NEQUAL)
+        public static readonly string[] msc_contextNames = { "Left", "Right" };
+        public CNotEqual() : base(NodeType.NT_NEQUAL,2)
         {
         }
 
@@ -372,11 +331,11 @@ namespace MiniC_Antlr
     }
 
 
-    public class CFunctionDefinition : GrammarASTElement
+    public class CFunctionDefinition : ASTElement
     {
-        public const int CT_FNAME = 0, CT_FARGS = 1, CT_COMPOUNDSTATEMENT = 2;
-
-        public CFunctionDefinition() : base(3, GrammarType.NodeType.NT_FUNCTION)
+        public const int CT_FNAME = 0, CT_FARGS = 1;
+        public static readonly string[] msc_contextNames = { "FunctionName", "FunctionArgs"};
+        public CFunctionDefinition() : base(NodeType.NT_FUNCTIONDEFINITION,2)
         {
         }
 
@@ -387,14 +346,15 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CIfStatement : GrammarASTElement
+    public class CIfStatement : ASTElement
     {
         public const int CT_CONDITION = 0,
             CT_STATEMENT = 1,
             CT_CONDITION2=2,
             CT_STATEMENT2 = 3,
             CT_STATEMENT3 = 4;
-        public CIfStatement() : base(5, GrammarType.NodeType.NT_IF)
+        public static readonly string[] msc_contextNames = { "IfCondition", "IfBody","ElseIfCondition","ElseIfBody","ElseBody" };
+        public CIfStatement() : base(NodeType.NT_IFSTATEMENT,5)
         {
         }
 
@@ -406,11 +366,11 @@ namespace MiniC_Antlr
     }
 
    
-    public class CWhileStatement : GrammarASTElement
+    public class CWhileStatement : ASTElement
     {
-        public const int CT_CONDITION = 0, CT_STATEMENT = 1;
-
-        public CWhileStatement() : base(2, GrammarType.NodeType.NT_WHILE)
+        public const int CT_CONDITION = 0, CT_STATEMENTS = 1;
+        public static readonly string[] msc_contextNames = { "WhileCondition", "WhileBody" };
+        public CWhileStatement() : base(NodeType.NT_WHILESTATEMENT,2)
         {
         }
 
@@ -421,11 +381,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CDoWhileStatement : GrammarASTElement
+    public class CDoWhileStatement : ASTElement
     {
         public const int CT_STATEMENT = 0, CT_CONDITION = 1;
-
-        public CDoWhileStatement() : base(2, GrammarType.NodeType.NT_DOWHILE)
+        public static readonly string[] msc_contextNames = { "DoWhileBody", "DoWhileCondition" };
+        public CDoWhileStatement() : base(NodeType.NT_DOWHILESTATEMENT,2)
         {
         }
 
@@ -436,11 +396,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CForWhileStatement : GrammarASTElement
+    public class CForWhileStatement : ASTElement
     {
         public const int CT_EXPRESSION = 0, CT_EXPRESSION2 = 1 , CT_EXPRESSION3=2 , CT_STATEMENT=3;
-
-        public CForWhileStatement() : base(4, GrammarType.NodeType.NT_FORLOOP)
+        public static readonly string[] msc_contextNames = { "ForExpr1", "ForExpr2", "ForExpr3", "ForExpr4" };
+        public CForWhileStatement() : base(NodeType.NT_FORLOOPSTATEMENT,4)
         {
         }
 
@@ -451,26 +411,12 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CCompoundStatement : GrammarASTElement
-    {
-        public const int CT_STATEMENTLIST = 0;
-
-        public CCompoundStatement() : base(1, GrammarType.NodeType.NT_COMPOUND)
-        {
-        }
-
-        public override T Accept<T>(ASTBaseVisitor<T> visitor)
-        {
-            GrammarBaseASTVisitor<T> grammarVisitor = visitor as GrammarBaseASTVisitor<T>;
-            return grammarVisitor.VisitCCompoundStatement(this);
-        }
-    }
-
-    public class CExprPlusPlus : GrammarASTElement
+    
+    public class CExprPlusPlus : ASTElement
     {
         public const int CT_LEFT = 0;
-
-        public CExprPlusPlus() : base(1, GrammarType.NodeType.NT_EXPRPLUSPLUS)
+        public static readonly string[] msc_contextNames = { "Left" };
+        public CExprPlusPlus() : base (NodeType.NT_EXPRMINUSMINUS,1)
         {
         }
 
@@ -481,11 +427,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CPlusPlusExpression : GrammarASTElement
+    public class CPlusPlusExpression : ASTElement
     {
         public const int CT_RIGHT = 0;
-
-        public CPlusPlusExpression() : base(1, GrammarType.NodeType.NT_PLUSPLUSEXPR)
+        public static readonly string[] msc_contextNames = { "Right" };
+        public CPlusPlusExpression() : base(NodeType.NT_PLUSPLUSEXPR,1)
         {
         }
 
@@ -496,11 +442,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CExpressionMinusMInus : GrammarASTElement
+    public class CExpressionMinusMInus : ASTElement
     {
         public const int CT_LEFT = 0;
-
-        public CExpressionMinusMInus() : base(1, GrammarType.NodeType.NT_EXPRMINUSMINUS)
+        public static readonly string[] msc_contextNames = { "Left" };
+        public CExpressionMinusMInus() : base(NodeType.NT_EXPRMINUSMINUS,1)
         {
         }
 
@@ -511,11 +457,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CMinusMInusExpression : GrammarASTElement
+    public class CMinusMInusExpression : ASTElement
     {
         public const int CT_RIGHT = 0;
-
-        public CMinusMInusExpression() : base(1, GrammarType.NodeType.NT_MINUSMINUSEXPR)
+        public static readonly string[] msc_contextNames = { "Right" };
+        public CMinusMInusExpression() : base(NodeType.NT_MINUSMINUSEXPR,1)
         {
         }
 
@@ -526,10 +472,11 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CReturnStatement : GrammarASTElement
+    public class CReturnStatement : ASTElement
     {
         public const int CT_RETURNVALUE = 0;
-        public CReturnStatement() : base(1, GrammarType.NodeType.NT_RETURN)
+        public static readonly string[] msc_contextNames = { "Return" };
+        public CReturnStatement() : base(NodeType.NT_RETURN_STATEMENT,1)
         {
         }
 
@@ -540,13 +487,13 @@ namespace MiniC_Antlr
         }
     }
 
-    public class CBreakStatement : GrammarASTElement
+    public class CBreakStatement : ASTElement
     {
 
-        public CBreakStatement() : base(0, GrammarType.NodeType.NT_BREAK)
+        public CBreakStatement() : base(NodeType.NT_BREAK_STATEMENT,0)
         {
         }
-
+        public static readonly string[] msc_contextNames = { "Break" };
         public override T Accept<T>(ASTBaseVisitor<T> visitor)
         {
             GrammarBaseASTVisitor<T> grammarVisitor = visitor as GrammarBaseASTVisitor<T>;

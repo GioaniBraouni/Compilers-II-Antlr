@@ -31,6 +31,9 @@ namespace MiniC_Antlr
 
             GrammarBaseASTVisitor<int> dummyAstVisitor = new GrammarBaseASTVisitor<int>();
             dummyAstVisitor.Visit(astGenerator.MRoot);
+
+            ASTPrinterVisitor astPrinter = new ASTPrinterVisitor("ast.dot");
+            astPrinter.Visit(astGenerator.MRoot);
         }
     }
 }

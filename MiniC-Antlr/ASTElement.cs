@@ -13,7 +13,6 @@ namespace MiniC_Antlr
         private int m_currentChildIndex;
         private ASTElement m_currentChild;
         private ASTElement m_currentNode;
-
         public ASTElement Current => m_currentChild;
 
         public ASTElementChildrenEnumerator(ASTElement mCurrentNode)
@@ -58,7 +57,6 @@ namespace MiniC_Antlr
             }
             else
             {
-                m_currentChildIndex++;
                 m_currentChild = m_currentNode.GetChild(m_currentContext, m_currentChildIndex);
                 return true; //Move to next context
             }
@@ -74,6 +72,43 @@ namespace MiniC_Antlr
         object IEnumerator.Current => Current;
     }
 
+    public enum NodeType
+    {
+        NT_NA,
+        NT_COMPILEUNIT,
+        NT_ASSIGNMENT,
+        NT_ADDITION,
+        NT_SUBTRACTION,
+        NT_MULTIPLICATION,
+        NT_DIVISION,
+        NT_NUMBER,
+        NT_IDENTIFIER,
+        NT_AND,
+        NT_OR,
+        NT_NOT,
+        NT_GT,
+        NT_GTE,
+        NT_LT,
+        NT_LTE,
+        NT_EQUAL,
+        NT_NEQUAL,
+        NT_FUNCTIONDEFINITION,
+        NT_IFSTATEMENT,
+        NT_WHILESTATEMENT,
+        NT_DOWHILESTATEMENT,
+        NT_FORLOOPSTATEMENT,
+        NT_EXPRPLUSPLUS,
+        NT_PLUSPLUSEXPR,
+        NT_EXPRMINUSMINUS,
+        NT_MINUSMINUSEXPR,
+        NT_RETURN_STATEMENT,
+        NT_BREAK_STATEMENT,
+        NT_CASEOPTIONS,
+        NT_DEFAULTOPTION,
+        NT_SWITCHCASE
+
+    }
+
     public abstract class ASTElement :IEnumerable<ASTElement>
     {
         private List<ASTElement>[] m_children = null;
@@ -81,6 +116,12 @@ namespace MiniC_Antlr
         private int m_serial;
         private string m_name;
         private static int m_serialCounter = 0;
+        private NodeType m_type;
+
+        public NodeType Type
+        {
+            get => m_type;
+        }
 
         public ASTElement MParent
         {
@@ -88,7 +129,7 @@ namespace MiniC_Antlr
             set => m_parent = value;
         }
 
-        public string MName => m_name;
+        public virtual string MName => m_name;
 
         public IEnumerator<ASTElement> GetEnumerator()
         {
@@ -102,9 +143,10 @@ namespace MiniC_Antlr
 
         public abstract T Accept<T>(ASTBaseVisitor<T> visitor);
 
-        protected ASTElement(int context)
+        protected ASTElement(NodeType type,int context)
         {
             m_serial = m_serialCounter++;
+            m_type = type;
             m_name = GenerateNodeName();
             if (context != 0)
             {
@@ -121,16 +163,23 @@ namespace MiniC_Antlr
             m_children[contextIndex].Add(child);
         }
 
+        public IEnumerable<ASTElement> GetChildren(int context)
+        {
+            return m_children[context];
+        }
+
         public int getContextChildrenNumber(int context)
         {
-            if (m_children.Length > context)
+            if (m_children.Length > context && m_children != null) 
             {
                 return m_children[context].Count;
             }
-            else
+            else if (m_children != null && m_children.Length <= context)
             {
                 throw new IndexOutOfRangeException("Out of range");
             }
+            else
+                return 0;
         }
 
         public int getContextNumber()
@@ -143,9 +192,17 @@ namespace MiniC_Antlr
             return m_children[context][index];
         }
 
+        public IEnumerable<ASTElement> GetContextChildren(int context)
+        {
+            foreach (ASTElement c in m_children[context])
+            {
+                yield return c;
+            }
+        }
+
         public virtual string GenerateNodeName()
         {
-            return "_" + m_serial;
+            return Enum.GetName(typeof(NodeType), Type) + "_" + m_serial;
         }
     }
 }

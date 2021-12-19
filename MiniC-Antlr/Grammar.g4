@@ -1,9 +1,12 @@
 grammar Grammar;
 
-compileUnit : (statement|functionDefinition)+ #ST_CompileUnit
+compileUnit : (statementList|functionDefinition)+ #ST_CompileUnit
 			;
 
-functionDefinition : FUNCTION IDENTIFIER LP fargs? RP compoundStatement		#ST_FunctionDefinition			
+statementList : (statement)+  #ST_List
+			  ;
+
+functionDefinition : FUNCTION IDENTIFIER? LP fargs? RP compoundStatement		#ST_FunctionDefinition			
 				   ;
 
 statement : expression QM		#ST_Expression
@@ -47,15 +50,13 @@ forStatement :  FOR LP expression? QM expression? QM expression RP statement  #S
 compoundStatement : LB statementList? RB
 				  ;
 
-statementList : (statement)+  #ST_List
-			  ;
 
 expression : NUMBER											#ExprNUMBER	
 		   | IDENTIFIER										#ExprIDENTIFIER
 		   | expression op=(DIV|MULT) expression 			#ExprDIVMULT   
 		   | expression op=(PLUS|MINUS) expression		    #ExprPLUSMINUS
-		   | PLUS PLUS expression							#ExprPLUSPLUS
-		   | expression PLUS PLUS							#PLUSPLUSExpr
+		   | PLUS PLUS expression							#PLUSPLUSExpr
+		   | expression PLUS PLUS							#ExprPLUSPLUS
 		   | MINUS MINUS expression							#MINUSMINUSExpr
 		   | expression MINUS MINUS							#ExprMINUSMINUS
 		   | LP expression RP								#ExprPARENTHESIS

@@ -8,10 +8,14 @@ namespace MiniC_Antlr
 {
      public abstract class CNodeType<T>
     {
+        public T MNodeType => m_nodeType;
+
         protected CNodeType(T mNodeType)
         {
             m_nodeType = mNodeType;
         }
+
+
 
         private T m_nodeType;
 

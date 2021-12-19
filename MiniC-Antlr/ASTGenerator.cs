@@ -9,11 +9,11 @@ namespace MiniC_Antlr
 {
     class ASTGenerator :GrammarBaseVisitor<int>
     {
-        private GrammarASTElement m_root;
+        private ASTElement m_root;
 
-        public GrammarASTElement MRoot => m_root;
+        public ASTElement MRoot => m_root;
 
-        private Stack<(GrammarASTElement, int)> m_contextData = new Stack<(GrammarASTElement, int)>();
+        private Stack<(ASTElement, int)> m_contextData = new Stack<(ASTElement, int)>();
 
         public override int VisitST_CompileUnit(GrammarParser.ST_CompileUnitContext context)
         {
@@ -21,9 +21,11 @@ namespace MiniC_Antlr
             CCompileUnit node = new CCompileUnit();
             m_root = node;
 
-            (GrammarASTElement, int) t = (m_root,CCompileUnit.CT_STATEMENTS);
+            (ASTElement, int) t = (m_root,CCompileUnit.CT_STATEMENTLIST);
+
             m_contextData.Push(t);
-            foreach (var child in context.statement())
+
+            foreach (var child in context.statementList())
             {
                 Visit(child);
             }
@@ -44,12 +46,12 @@ namespace MiniC_Antlr
         {
             CFunctionDefinition newnode = new CFunctionDefinition();
 
-            (GrammarASTElement, int) parentData = m_contextData.Peek();
+            (ASTElement, int) parentData = m_contextData.Peek();
             parentData.Item1.AddChild(newnode,parentData.Item2);
 
             newnode.MParent = parentData.Item1;
 
-            (GrammarASTElement, int) t;
+            (ASTElement, int) t;
 
             t = (newnode, CFunctionDefinition.CT_FNAME);
             m_contextData.Push(t);
@@ -61,24 +63,20 @@ namespace MiniC_Antlr
             Visit(context.fargs());
             m_contextData.Pop();
 
-            t = (newnode, CFunctionDefinition.CT_COMPOUNDSTATEMENT);
-            m_contextData.Push(t);
-            Visit(context.compoundStatement());
-            m_contextData.Pop();
-
             return 0;
         }
 
+        
         public override int VisitST_Return(GrammarParser.ST_ReturnContext context)
         {
             CReturnStatement newnode = new CReturnStatement();
 
-            (GrammarASTElement, int) parentData = m_contextData.Peek();
+            (ASTElement, int) parentData = m_contextData.Peek();
             parentData.Item1.AddChild(newnode, parentData.Item2);
 
             newnode.MParent = parentData.Item1;
 
-            (GrammarASTElement, int) t = (newnode, CReturnStatement.CT_RETURNVALUE);
+            (ASTElement, int) t = (newnode, CReturnStatement.CT_RETURNVALUE);
             m_contextData.Push(t);
             Visit(context.expression());
             m_contextData.Pop();
@@ -89,7 +87,7 @@ namespace MiniC_Antlr
         {
             CBreakStatement newnode = new CBreakStatement();
 
-            (GrammarASTElement, int) parentData = m_contextData.Peek();
+            (ASTElement, int) parentData = m_contextData.Peek();
             parentData.Item1.AddChild(newnode, parentData.Item2);
 
             newnode.MParent = parentData.Item1;
@@ -100,12 +98,12 @@ namespace MiniC_Antlr
         {
             CIfStatement newnode = new CIfStatement();
 
-            (GrammarASTElement, int) parentData = m_contextData.Peek();
+            (ASTElement, int) parentData = m_contextData.Peek();
             parentData.Item1.AddChild(newnode, parentData.Item2);
 
             newnode.MParent = parentData.Item1;
 
-            (GrammarASTElement, int) t;
+            (ASTElement, int) t;
 
             t = (newnode, CIfStatement.CT_CONDITION);
             m_contextData.Push(t);
@@ -141,12 +139,12 @@ namespace MiniC_Antlr
         {
             CSwitch newnode = new CSwitch();
 
-            (GrammarASTElement, int) parentData = m_contextData.Peek();
+            (ASTElement, int) parentData = m_contextData.Peek();
             parentData.Item1.AddChild(newnode, parentData.Item2);
 
             newnode.MParent = parentData.Item1;
 
-            (GrammarASTElement, int) t;
+            (ASTElement, int) t;
 
             t = (newnode, CSwitch.CT_CONDITION);
             m_contextData.Push(t);
@@ -173,12 +171,12 @@ namespace MiniC_Antlr
         {
             CCaseOptions newnode = new CCaseOptions();
 
-            (GrammarASTElement, int) parentData = m_contextData.Peek();
+            (ASTElement, int) parentData = m_contextData.Peek();
             parentData.Item1.AddChild(newnode, parentData.Item2);
 
             newnode.MParent = parentData.Item1;
 
-            (GrammarASTElement, int) t;
+            (ASTElement, int) t;
 
             t = (newnode, CCaseOptions.CT_CASECONDITION);
             m_contextData.Push(t);
@@ -197,12 +195,12 @@ namespace MiniC_Antlr
         {
             CDefaultOption newnode = new CDefaultOption();
 
-            (GrammarASTElement, int) parentData = m_contextData.Peek();
+            (ASTElement, int) parentData = m_contextData.Peek();
             parentData.Item1.AddChild(newnode, parentData.Item2);
 
             newnode.MParent = parentData.Item1;
 
-            (GrammarASTElement, int) t;
+            (ASTElement, int) t;
 
             t = (newnode, CDefaultOption.CT_STATEMENT);
             m_contextData.Push(t);
@@ -216,19 +214,19 @@ namespace MiniC_Antlr
         {
             CWhileStatement newnode = new CWhileStatement();
 
-            (GrammarASTElement, int) parentData = m_contextData.Peek();
+            (ASTElement, int) parentData = m_contextData.Peek();
             parentData.Item1.AddChild(newnode, parentData.Item2);
 
             newnode.MParent = parentData.Item1;
 
-            (GrammarASTElement, int) t;
+            (ASTElement, int) t;
 
             t = (newnode, CWhileStatement.CT_CONDITION);
             m_contextData.Push(t);
             Visit(context.expression());
             m_contextData.Pop();
 
-            t = (m_root, CWhileStatement.CT_STATEMENT);
+            t = (newnode, CWhileStatement.CT_STATEMENTS);
             m_contextData.Push(t);
             Visit(context.statement());
             m_contextData.Pop();
@@ -239,19 +237,19 @@ namespace MiniC_Antlr
         {
             CDoWhileStatement newnode = new CDoWhileStatement();
 
-            (GrammarASTElement, int) parentData = m_contextData.Peek();
+            (ASTElement, int) parentData = m_contextData.Peek();
             parentData.Item1.AddChild(newnode, parentData.Item2);
 
             newnode.MParent = parentData.Item1;
 
-            (GrammarASTElement, int) t;
+            (ASTElement, int) t;
 
-            t = (newnode, CCaseOptions.CT_CASECONDITION);
+            t = (newnode, CDoWhileStatement.CT_STATEMENT);
             m_contextData.Push(t);
             Visit(context.expression());
             m_contextData.Pop();
 
-            t = (newnode, CCaseOptions.CT_STATEMENT);
+            t = (newnode, CDoWhileStatement.CT_CONDITION);
             m_contextData.Push(t);
             Visit(context.expression());
             m_contextData.Pop();
@@ -262,12 +260,12 @@ namespace MiniC_Antlr
         {
             CDoWhileStatement newnode = new CDoWhileStatement();
 
-            (GrammarASTElement, int) parentData = m_contextData.Peek();
+            (ASTElement, int) parentData = m_contextData.Peek();
             parentData.Item1.AddChild(newnode, parentData.Item2);
 
             newnode.MParent = parentData.Item1;
 
-            (GrammarASTElement, int) t;
+            (ASTElement, int) t;
 
             t = (newnode, CForWhileStatement.CT_EXPRESSION);
             m_contextData.Push(t);
@@ -298,7 +296,7 @@ namespace MiniC_Antlr
 
         public override int VisitTerminal(ITerminalNode node)
         {
-            (GrammarASTElement, int) parent_data;
+            (ASTElement, int) parent_data;
             switch (node.Symbol.Type)
             {
                 case GrammarLexer.NUMBER:
@@ -320,7 +318,7 @@ namespace MiniC_Antlr
 
         public override int VisitExprDIVMULT(GrammarParser.ExprDIVMULTContext context)
         {
-            (GrammarASTElement, int) parent_data;
+            (ASTElement, int) parent_data;
             switch (context.op.Type)
             {
                 case GrammarLexer.MULT:
@@ -358,7 +356,7 @@ namespace MiniC_Antlr
 
         public override int VisitExprPLUSMINUS(GrammarParser.ExprPLUSMINUSContext context)
         {
-            (GrammarASTElement, int) parent_data;
+            (ASTElement, int) parent_data;
             switch (context.op.Type)
             {
                 case GrammarLexer.PLUS:
@@ -397,7 +395,7 @@ namespace MiniC_Antlr
         public override int VisitExprPLUSPLUS(GrammarParser.ExprPLUSPLUSContext context)
         {
             CExprPlusPlus node = new CExprPlusPlus();
-            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            (ASTElement, int) parent_data = m_contextData.Peek();
             parent_data.Item1.AddChild(node, parent_data.Item2);
             node.MParent = parent_data.Item1;
 
@@ -410,7 +408,7 @@ namespace MiniC_Antlr
         public override int VisitPLUSPLUSExpr(GrammarParser.PLUSPLUSExprContext context)
         {
             CPlusPlusExpression node = new CPlusPlusExpression();
-            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            (ASTElement, int) parent_data = m_contextData.Peek();
             parent_data.Item1.AddChild(node, parent_data.Item2);
             node.MParent = parent_data.Item1;
 
@@ -423,7 +421,7 @@ namespace MiniC_Antlr
         public override int VisitExprMINUSMINUS(GrammarParser.ExprMINUSMINUSContext context)
         {
             CExpressionMinusMInus node = new CExpressionMinusMInus();
-            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            (ASTElement, int) parent_data = m_contextData.Peek();
             parent_data.Item1.AddChild(node, parent_data.Item2);
             node.MParent = parent_data.Item1;
 
@@ -437,7 +435,7 @@ namespace MiniC_Antlr
         public override int VisitMINUSMINUSExpr(GrammarParser.MINUSMINUSExprContext context)
         {
             CMinusMInusExpression node = new CMinusMInusExpression();
-            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            (ASTElement, int) parent_data = m_contextData.Peek();
             parent_data.Item1.AddChild(node, parent_data.Item2);
             node.MParent = parent_data.Item1;
 
@@ -450,7 +448,7 @@ namespace MiniC_Antlr
         public override int VisitExprASSIGN(GrammarParser.ExprASSIGNContext context)
         {
             CAssignment node = new CAssignment();
-            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            (ASTElement, int) parent_data = m_contextData.Peek();
             parent_data.Item1.AddChild(node, parent_data.Item2);
             node.MParent = parent_data.Item1;
 
@@ -467,7 +465,7 @@ namespace MiniC_Antlr
         public override int VisitExprNOT(GrammarParser.ExprNOTContext context)
         {
             CNot node = new CNot();
-            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            (ASTElement, int) parent_data = m_contextData.Peek();
             parent_data.Item1.AddChild(node, parent_data.Item2);
             node.MParent = parent_data.Item1;
 
@@ -480,7 +478,7 @@ namespace MiniC_Antlr
         public override int VisitExprAND(GrammarParser.ExprANDContext context)
         {
             CAnd node = new CAnd();
-            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            (ASTElement, int) parent_data = m_contextData.Peek();
             parent_data.Item1.AddChild(node, parent_data.Item2);
             node.MParent = parent_data.Item1;
 
@@ -498,7 +496,7 @@ namespace MiniC_Antlr
         public override int VisitExprOR(GrammarParser.ExprORContext context)
         {
             COr node = new COr();
-            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            (ASTElement, int) parent_data = m_contextData.Peek();
             parent_data.Item1.AddChild(node, parent_data.Item2);
             node.MParent = parent_data.Item1;
 
@@ -516,7 +514,7 @@ namespace MiniC_Antlr
         public override int VisitExprGT(GrammarParser.ExprGTContext context)
         {
             CGreaterThan node = new CGreaterThan();
-            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            (ASTElement, int) parent_data = m_contextData.Peek();
             parent_data.Item1.AddChild(node, parent_data.Item2);
             node.MParent = parent_data.Item1;
 
@@ -534,7 +532,7 @@ namespace MiniC_Antlr
         public override int VisitExprGTE(GrammarParser.ExprGTEContext context)
         {
             CGreaterThanEqual node = new CGreaterThanEqual();
-            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            (ASTElement, int) parent_data = m_contextData.Peek();
             parent_data.Item1.AddChild(node, parent_data.Item2);
             node.MParent = parent_data.Item1;
 
@@ -552,7 +550,7 @@ namespace MiniC_Antlr
         public override int VisitExprLT(GrammarParser.ExprLTContext context)
         {
             CLessThan node = new CLessThan();
-            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            (ASTElement, int) parent_data = m_contextData.Peek();
             parent_data.Item1.AddChild(node, parent_data.Item2);
             node.MParent = parent_data.Item1;
 
@@ -570,7 +568,7 @@ namespace MiniC_Antlr
         public override int VisitExprLTE(GrammarParser.ExprLTEContext context)
         {
             CLessThanEqual node = new CLessThanEqual();
-            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            (ASTElement, int) parent_data = m_contextData.Peek();
             parent_data.Item1.AddChild(node, parent_data.Item2);
             node.MParent = parent_data.Item1;
 
@@ -588,7 +586,7 @@ namespace MiniC_Antlr
         public override int VisitExprEQUAL(GrammarParser.ExprEQUALContext context)
         {
             CEqual node = new CEqual();
-            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            (ASTElement, int) parent_data = m_contextData.Peek();
             parent_data.Item1.AddChild(node, parent_data.Item2);
             node.MParent = parent_data.Item1;
 
@@ -606,7 +604,7 @@ namespace MiniC_Antlr
         public override int VisitExprNEQUAL(GrammarParser.ExprNEQUALContext context)
         {
             CNotEqual node = new CNotEqual();
-            (GrammarASTElement, int) parent_data = m_contextData.Peek();
+            (ASTElement, int) parent_data = m_contextData.Peek();
             parent_data.Item1.AddChild(node, parent_data.Item2);
             node.MParent = parent_data.Item1;
 
@@ -620,6 +618,5 @@ namespace MiniC_Antlr
 
             return 0;
         }
-
     }
 }
